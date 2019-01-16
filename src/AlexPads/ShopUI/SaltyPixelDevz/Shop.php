@@ -17,6 +17,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
 use pocketmine\item\Item;
+use pocketmine\item\enchantment\{Enchantment, EnchantmentInstace};
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat as TF;
@@ -143,7 +144,9 @@ class Shop extends PluginBase
 					$this->ItemForm($player, $cat);
 				} else {
 					if ($money >= $list[4] * $data[1]) {
+						$item = Item::get($list[0], $list[1], $data[1])->setCustomName($list[3]);
 						$player->getInventory()->addItem(Item::get($list[0], $list[1], $data[1])->setCustomName($list[3]));
+						$item->addEnchantment(new EnchantmentInstance(Enchantment::getEnchantmentByName($list[8], (int)$list[9])));
 						$this->getServer()->getPluginManager()->getPlugin("EconomyAPI")->reduceMoney($player, $list[4] * $data[1]);
 						$message = $this->getConfig()->getNested("messages.paid-for");
 						$vars = ["{amount}" => $list[2], "{item}" => $list[3], "{cost}" => $list[4] * $data[1]];
@@ -170,6 +173,7 @@ class Shop extends PluginBase
 
 					if ($player->getInventory()->contains(Item::get($list[0], $list[1], $data[1])) === true) {
 						$player->getInventory()->removeItem(Item::get($list[0], $list[1], $data[1]));
+						
 						$this->getServer()->getPluginManager()->getPlugin("EconomyAPI")->addMoney($player, $list[5] * $data[1]);
 						$message = $this->getConfig()->getNested("messages.money-received");
 						$vars = ["{amount}" => $list[2], "{item}" => $list[3], "{cost}" => $list[4] * $data[1]];
